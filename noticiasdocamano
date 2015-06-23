@@ -1,0 +1,46 @@
+import feedparser
+import pyttsx
+from Tkinter import *
+
+root = Tk()
+
+text1 = Text(root, height=200, width=60)
+photo=PhotoImage(file='./IMG_4330.PNG')
+text1.insert(END,'\n')
+text1.image_create(END, image=photo)
+
+text1.pack(side=LEFT)
+
+text2 = Text(root, height=200, width=500)
+scroll = Scrollbar(root, command=text2.yview)
+text2.configure(yscrollcommand=scroll.set)
+text2.tag_configure('bold_italics', font=('Arial', 12, 'bold', 'italic'))
+text2.tag_configure('big', font=('Verdana', 20, 'bold'))
+text2.tag_configure('color', foreground='#476042', 
+                        font=('Tempus Sans ITC', 12, 'bold'))
+text2.tag_bind('follow', '<1>', lambda e, t=text2: t.insert(END, "Not now, maybe later!"))
+text2.insert(END,'\nLucas,\n', 'big')
+text2.insert(END,'Ultimas Noticias do seu Portal favorito, g1.globo.com:\n', 'big')
+
+d=feedparser.parse('http://g1.globo.com/dynamo/rss2.xml')
+print d['feed']['title']
+print d['feed']['link']
+print d.feed.subtitle
+engine = pyttsx.init()
+rate = engine.getProperty('rate')
+engine.setProperty('rate', rate-10000)
+volume = engine.getProperty('volume')
+engine.setProperty('volume', volume+10)
+pyttsx.voice.Voice.languages = ['Portuguese']
+for post in d.entries:
+    #print post.title + ": " + "\n"
+    text2.insert(END, post.title, 'color')
+    text2.insert(END, '\n\n\n', 'follow')
+    text2.pack(side=LEFT)
+    scroll.pack(side=RIGHT, fill=Y)
+for post in d.entries:
+    engine.say( post.title + ": " +  "\n")
+root.mainloop()
+engine.runAndWait()
+
+
